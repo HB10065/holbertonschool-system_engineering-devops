@@ -1,0 +1,95 @@
+[User's Computer]
+       |
+       ↓
+   [Internet/DNS]
+       |
+       ↓
+[Load Balancer - HAproxy]
+       |
+       +---------------+---------------+
+       |                               |
+       ↓                               ↓
+[Server 1: 8.8.8.8]            [Server 2: 8.8.8.9]
+┌─────────────────────┐        ┌─────────────────────┐
+│ Nginx (Web Server)  │        │ Nginx (Web Server)  │
+│ Application Server  │        │ Application Server  │
+│ Application Files   │        │ Application Files   │
+└─────────────────────┘        └─────────────────────┘
+       |                               |
+       +---------------+---------------+
+                       |
+                       ↓
+              [MySQL Database]
+              Primary-Replica Cluster
+              ┌──────────────────┐
+              │ Primary (Master) │
+              │        ↓         │
+              │ Replica (Slave)  │
+              └──────────────────┘
+
+
+-Explanations of Additional Elements:
+    Why add a Load Balancer (HAproxy)?
+    To distribute incoming traffic across multiple servers, preventing any single server
+    from being overwhelmed and improving availability and performance.
+
+    Why add 2 servers instead of 1?
+    To eliminate single point of failure and provide redundancy. If one server fails, the
+    other can continue serving requests.
+
+    Why add a database Primary-Replica cluster?
+    To improve read performance, provide data redundancy, and enable failover capability if
+    the primary database fails.
+
+
+-What distribution algorithm is configured?
+Round Robin - The load balancer distributes requests sequentially to each server in turn.
+
+Request 1 → Server 1
+Request 2 → Server 2
+Request 3 → Server 1
+Request 4 → Server 2 (and so on...)
+
+
+-Active-Active or Active-Passive setup?
+This is an Active-Active setup.
+
+    Active-Active: Both servers actively handle traffic simultaneously.
+    The load balancer distributes requests between both servers.
+
+    Active-Passive: Only one server actively handles traffic while the other remains on standby (passive).
+    The passive server only activates if the active one fails.
+
+
+-Database Primary-Replica Cluster:
+How it works:
+The Primary (Master) node handles all write operations (INSERT, UPDATE, DELETE)
+Changes made to the Primary are automatically replicated to the Replica (Slave) node
+The Replica node can handle read operations (SELECT queries)
+Data synchronization flows one way: Primary → Replica
+
+
+-Difference between Primary and Replica nodes:
+Primary node: Handles write operations and read operations. The application sends all
+data modifications here.
+Replica node: Handles only read operations. The application can query it for data retrieval to
+reduce load on the Primary, but cannot write to it directly.
+
+
+-SPOF (Single Points of Failure):
+Load Balancer: If HAproxy fails, the entire website goes down
+Primary Database: If the Primary database fails, no write operations can be performed
+Single network connection: If the network fails, all servers become unreachable
+
+
+-Security Issues:
+No firewall: Servers are exposed to any type of traffic and potential attacks
+No HTTPS: Data transmitted between users and servers is unencrypted, allowing interception of
+sensitive information (passwords, personal data)
+
+
+-No Monitoring:
+Cannot detect when servers are down or experiencing issues
+No visibility into performance metrics (CPU, memory, response times)
+Cannot receive alerts when problems occur
+Difficult to identify bottlenecks or plan for capacity
