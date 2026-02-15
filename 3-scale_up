@@ -1,0 +1,65 @@
+[User's Computer]
+       |
+       ↓
+   [Internet/DNS]
+       |
+       ↓
+[Load Balancer Cluster - HAproxy]
+┌──────────────────────────┐
+│ LB 1 (Active) ←→ LB 2    │
+│    (Clustered)           │
+└──────────────────────────┘
+       |
+       +------------------+------------------+
+       |                  |                  |
+       ↓                  ↓                  ↓
+[Web Server 1]      [Web Server 2]    [Web Server 3]
+   (Nginx)             (Nginx)           (Nginx)
+       |                  |                  |
+       +------------------+------------------+
+                          |
+       +------------------+------------------+
+       |                  |                  |
+       ↓                  ↓                  ↓
+[App Server 1]      [App Server 2]    [App Server 3]
+(Application)       (Application)     (Application)
+(Code Base)         (Code Base)       (Code Base)
+       |                  |                  |
+       +------------------+------------------+
+                          |
+                          ↓
+                  [Database Server]
+                  ┌──────────────┐
+                  │ Primary      │
+                  │     ↓        │
+                  │ Replica      │
+                  └──────────────┘
+
+
+Explanations of Additional Elements:
+Why add 1 additional server?
+To separate components onto dedicated servers, allowing each to be optimized and scaled independently based on specific resource requirements and traffic patterns.
+
+Why add 1 additional load balancer (configured as cluster)?
+To eliminate the load balancer as a single point of failure. The clustered load balancers work together with failover capability - if one fails, the other takes over seamlessly.
+
+Why split components (web server, application server, database) onto separate servers?
+Separate Web Servers:
+
+Web servers primarily handle HTTP requests and serve static content
+Can be scaled horizontally based on traffic volume
+Require less CPU but more network bandwidth
+Easier to add more web servers during traffic spikes
+Separate Application Servers:
+
+Application servers run business logic and process dynamic requests
+Require more CPU and memory for code execution
+Can be scaled independently from web traffic
+Isolates application crashes from affecting web server availability
+Separate Database Server:
+
+Databases require different resources (high I/O, memory for caching)
+Can be optimized specifically for database performance (SSD storage, memory allocation)
+Security isolation - database is not directly exposed to web traffic
+Easier to implement specialized database backup and replication strategies
+Can upgrade database hardware without affecting web/application layers
