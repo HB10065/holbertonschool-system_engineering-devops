@@ -1,0 +1,89 @@
+[User's Computer] 
+       |
+       | (1. Types www.foobar.com in browser)
+       |
+       ↓
+[Internet/DNS]
+       |
+       | (2. DNS resolves www.foobar.com → 8.8.8.8)
+       |
+       ↓
+[Server: 8.8.8.8]
+    ┌─────────────────────────────────┐
+    │  Web Server (Nginx)             │ ← (3. Receives HTTP request)
+    │         ↓                       │
+    │  Application Server             │ ← (4. Processes business logic)
+    │         ↓                       │
+    │  Application Files (Code Base)  │ ← (5. Executes code)
+    │         ↓                       │
+    │  Database (MySQL)               │ ← (6. Retrieves/stores data)
+    └─────────────────────────────────┘
+       |
+       | (7. Sends response back)
+       ↓
+[User's Computer] (8. Displays website)
+
+
+-What is a server?
+A server is a physical or virtual computer that provides resources, data, services,
+or programs to other computers (clients) over a network.
+
+
+-What is the role of the domain name?
+The domain name (foobar.com) is a human-readable address that allows users to access
+the website without memorizing the IP address. It acts as a user-friendly
+alias for the server's IP address.
+
+
+-What type of DNS record www is in www.foobar.com?----------------
+www is a CNAME record (Canonical Name) or an A record pointing to the server IP 8.8.8.8.
+In this case, it's configured as a subdomain that resolves to the server's IP address.
+
+
+-What is the role of the web server?
+The web server (Nginx) handles HTTP/HTTPS requests from users' browsers. It:
+
+    Receives incoming requests
+    Serves static content (HTML, CSS, JavaScript, images)
+    Forwards dynamic requests to the application server
+    Returns responses to the client
+
+
+-What is the role of the application server?
+The application server executes the business logic of your application. It:
+
+    Processes dynamic content
+    Runs your code base (e.g., Python, PHP, Node.js)
+    Communicates with the database
+    Generates dynamic responses based on user requests
+
+
+-What is the role of the database?
+The database (MySQL) stores and manages persistent data such as:
+
+    User information
+    Content (posts, products, etc.)
+    Application configurations
+    It allows data to be created, read, updated, and deleted (CRUD operations)
+
+
+-What is the server using to communicate with the user's computer?
+The server uses HTTP/HTTPS protocol over TCP/IP to communicate with the user's 
+computer through the internet.
+
+
+-SPOF (Single Point of Failure)
+Everything runs on one server. Meaning if the server crashes, goes offline,
+or has hardware failure, the entire website becomes unavailable.
+
+
+-Downtime when maintenance is needed
+Deploying new code requires restarting the web server or application server,
+causing the website to be temporarily unavailable.
+So the users cannot access the site during updates, leading to poor user experience
+and potential lost revenue.
+
+
+-Cannot scale if too much incoming traffic
+A single server has limited CPU, RAM, and bandwidth. When traffic exceeds these limits,
+the server becomes slow or unresponsive therefore unable to keep up with a large amount of users.
