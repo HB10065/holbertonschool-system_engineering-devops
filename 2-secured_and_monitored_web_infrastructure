@@ -1,0 +1,100 @@
+[User's Computer]
+       |
+       ↓ (HTTPS - encrypted)
+   [Internet/DNS]
+       |
+       ↓
+[Load Balancer - HAproxy]
+[SSL Certificate installed here]
+[Monitoring Client 1]
+       |
+   [Firewall 1]
+       |
+       +---------------+---------------+
+       |                               |
+       ↓                               ↓
+[Server 1]                      [Server 2]
+[Firewall 2]                    [Firewall 3]
+[Monitoring Client 2]           [Monitoring Client 3]
+┌─────────────────────┐        ┌─────────────────────┐
+│ Nginx (Web Server)  │        │ Nginx (Web Server)  │
+│ Application Server  │        │ Application Server  │
+│ Application Files   │        │ Application Files   │
+│ MySQL Database      │        │ MySQL Database      │
+│ (Primary-Replica)   │        │ (Primary-Replica)   │
+└─────────────────────┘        └─────────────────────┘
+
+
+-Explanations of Additional Elements:
+    Why add 3 Firewalls?
+    To control and filter incoming and outgoing network traffic based on security rules,
+    protecting each layer of the infrastructure from unauthorized access and malicious attacks.
+
+    Why add SSL Certificate?
+    To enable HTTPS and encrypt all data transmitted between users and the server,
+    protecting sensitive information from being intercepted.
+
+    Why add 3 Monitoring Clients?
+    To collect metrics, logs, and performance data from each component of the infrastructure
+    for analysis, alerting, and troubleshooting.
+
+
+-What are firewalls for?
+Firewalls act as a security barrier that filters network traffic based on predefined rules.
+They block unauthorized access, prevent malicious attacks, and allow only legitimate traffic
+to reach the servers.
+
+
+-Why is traffic served over HTTPS?
+HTTPS encrypts data in transit using SSL/TLS, ensuring:
+
+    Confidentiality: Data cannot be read by third parties
+    Integrity: Data cannot be modified during transmission
+    Authentication: Users can verify they're connecting to the legitimate website
+
+
+-What is monitoring used for?
+Monitoring is used to:
+
+    Track server health and performance metrics (CPU, memory, disk usage)
+    Detect and alert on failures or anomalies
+    Analyze traffic patterns and user behavior
+    Troubleshoot issues quickly
+    Plan capacity and resource allocation
+
+
+-How does the monitoring tool collect data?
+The monitoring clients (data collectors) installed on each server:
+
+    Gather metrics from system resources and application logs
+    Send this data to a centralized monitoring service (like Sumologic)
+    The service aggregates, analyzes, and visualizes the data
+    Generates alerts when thresholds are exceeded
+
+
+-How to monitor web server QPS (Queries Per Second)?
+Configure the monitoring client to:
+
+    Track Nginx access logs
+    Count the number of HTTP requests received per second
+    Set up a metric/dashboard in the monitoring tool to display QPS
+    Configure alerts if QPS exceeds normal thresholds
+
+
+-Why terminating SSL at the load balancer level is an issue:
+Traffic between the load balancer and backend servers is unencrypted (HTTP).
+If someone gains access to the internal network, they can intercept sensitive data in plain text
+
+
+-Why having only one MySQL server capable of accepting writes is an issue:
+The Primary database is a single point of failure for write operations. If it fails,
+the application cannot perform any data modifications (INSERT, UPDATE, DELETE), making parts of
+the website non-functional.
+
+
+-Why having servers with all the same components might be a problem:
+    Resource inefficiency: Not all components need the same resources. Web servers need different
+    resources than databases.
+    Security risk: If one component is compromised, all components on that server are at risk.
+    Scalability limitation: Cannot scale individual components independently based on demand.
+    Maintenance complexity: Updating one component requires affecting all components on the server.
